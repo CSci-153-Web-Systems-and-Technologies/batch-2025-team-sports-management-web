@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase-client';
-import { Announcement } from '@/types';
 import Link from 'next/link';
 import { 
   PencilSquareIcon, 
@@ -16,6 +15,29 @@ import {
   SparklesIcon
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Define the Announcement type locally
+interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  author_id: string;
+  team_id?: string;
+  is_pinned: boolean;
+  author?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    avatar_url?: string;
+    role?: string;
+  } | null;
+  team?: {
+    id: string;
+    name: string;
+  } | null;
+}
 
 export default function AdminAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -59,9 +81,10 @@ export default function AdminAnnouncementsPage() {
         .select('id, name')
         .in('id', teamIds);
       
-      // Combine data
+      // Combine data and ensure is_pinned exists (default to false if undefined)
       const combinedData = announcementsData.map(announcement => ({
         ...announcement,
+        is_pinned: announcement.is_pinned || false,
         author: authorsData?.find(a => a.id === announcement.author_id) || null,
         team: teamsData?.find(t => t.id === announcement.team_id) || null
       }));

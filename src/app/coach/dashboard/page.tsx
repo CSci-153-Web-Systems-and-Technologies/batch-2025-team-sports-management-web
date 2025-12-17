@@ -19,12 +19,65 @@ import {
   Briefcase,
   Users as UsersIcon
 } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
+
+// Type definitions
+interface CoachTeam {
+  id: string;
+  name: string;
+}
+
+interface Player {
+  id: string;
+  user_id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  role: string;
+  team_id: string | null;
+  created_at: string;
+}
+
+interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  team_id: string | null;
+  priority: 'low' | 'medium' | 'high' | null;
+  created_at: string;
+}
+
+interface ScheduleBase {
+  id: string;
+  title: string;
+  start_time: string;
+  location: string | null;
+  team_id: string;
+  created_at: string;
+}
+
+interface PracticeSchedule extends ScheduleBase {
+  type: 'practice';
+  schedule_type: 'practice';
+  icon: LucideIcon;
+  color: string;
+}
+
+interface MeetingSchedule extends ScheduleBase {
+  type: 'meeting';
+  schedule_type: 'meeting';
+  meeting_type?: string;
+  icon: LucideIcon;
+  color: string;
+}
+
+type ScheduleItem = PracticeSchedule | MeetingSchedule;
 
 export default function CoachDashboard() {
-  const [coachTeam, setCoachTeam] = useState<{id: string, name: string} | null>(null);
-  const [upcomingSchedules, setUpcomingSchedules] = useState<any[]>([]);
-  const [teamPlayers, setTeamPlayers] = useState<any[]>([]);
-  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [coachTeam, setCoachTeam] = useState<CoachTeam | null>(null);
+  const [upcomingSchedules, setUpcomingSchedules] = useState<ScheduleItem[]>([]);
+  const [teamPlayers, setTeamPlayers] = useState<Player[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string>('');
@@ -200,9 +253,7 @@ export default function CoachDashboard() {
       const [
         playersResult,
         announcementsResult,
-        // Fetch from practice_schedules table
         practicesResult,
-        // Fetch from meeting_schedules table
         meetingsResult
       ] = await Promise.all([
         // Get players in this team
@@ -253,8 +304,8 @@ export default function CoachDashboard() {
         console.error('Announcements error:', announcementsResult.error);
       }
 
-      // Combine practices and meetings into one array
-      const allSchedules = [];
+      // Combine practices and meetings into one array with proper typing
+      const allSchedules: ScheduleItem[] = [];
       
       // Add practices
       if (!practicesResult.error && practicesResult.data) {
@@ -265,7 +316,7 @@ export default function CoachDashboard() {
             schedule_type: 'practice',
             icon: Target,
             color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-          });
+          } as PracticeSchedule);
         });
       } else {
         console.error('Practices error:', practicesResult.error);
@@ -280,7 +331,7 @@ export default function CoachDashboard() {
             schedule_type: 'meeting',
             icon: Briefcase,
             color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
-          });
+          } as MeetingSchedule);
         });
       } else {
         console.error('Meetings error:', meetingsResult.error);
@@ -520,7 +571,7 @@ export default function CoachDashboard() {
             ) : (
               <div className="space-y-4">
                 {upcomingSchedules.map((schedule) => {
-                  const Icon = schedule.type === 'practice' ? Target : Briefcase;
+                  const Icon = schedule.icon;
                   const typeColor = schedule.type === 'practice' 
                     ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
                     : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
@@ -534,7 +585,7 @@ export default function CoachDashboard() {
                               <Icon className="w-3 h-3" />
                               {schedule.type === 'practice' ? 'Practice' : 'Meeting'}
                             </span>
-                            {schedule.meeting_type && schedule.type === 'meeting' && (
+                            {'meeting_type' in schedule && schedule.meeting_type && schedule.type === 'meeting' && (
                               <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded">
                                 {schedule.meeting_type.replace('_', ' ')}
                               </span>
@@ -619,7 +670,7 @@ export default function CoachDashboard() {
                       </div>
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-white">
-                          {player.first_name} {player.last_name}
+                          {player.first_name || ''} {player.last_name || ''}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
                           {player.email}

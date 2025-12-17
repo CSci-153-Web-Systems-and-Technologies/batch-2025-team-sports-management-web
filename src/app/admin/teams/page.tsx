@@ -6,8 +6,13 @@ import { Team } from '@/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+// Extend the Team type to include created_by
+interface TeamWithCreator extends Team {
+  created_by?: string;
+}
+
 export default function AdminTeamsPage() {
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<TeamWithCreator[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSportType, setFilterSportType] = useState('');
@@ -52,11 +57,11 @@ export default function AdminTeamsPage() {
       }
 
       // Store teams
-      setTeams(teamsData);
+      setTeams(teamsData as TeamWithCreator[]);
 
       // Fetch creator names
       const creatorIds = teamsData
-        .map(team => team.created_by)
+        .map(team => (team as TeamWithCreator).created_by)
         .filter((id): id is string => !!id);
 
       if (creatorIds.length > 0) {
@@ -151,7 +156,12 @@ export default function AdminTeamsPage() {
     return matchesSearch && matchesSportType;
   });
 
-  const sportTypes = [...new Set(teams.map(t => t.sport_type).filter(Boolean))].sort();
+  // Filter out null values and ensure we only have strings
+  const sportTypes = [...new Set(
+    teams
+      .map(t => t.sport_type)
+      .filter((sport): sport is string => sport !== null && sport !== undefined)
+  )].sort();
 
   if (loading) {
     return (

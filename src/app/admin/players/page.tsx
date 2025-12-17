@@ -5,8 +5,14 @@ import { createSupabaseBrowserClient } from '@/lib/supabase-client';
 import { UserProfile } from '@/types';
 import Link from 'next/link';
 
+// Extend the UserProfile type locally to include missing properties
+interface ExtendedUserProfile extends UserProfile {
+  phone_number?: string;
+  is_active?: boolean;
+}
+
 export default function AdminPlayersPage() {
-  const [players, setPlayers] = useState<UserProfile[]>([]);
+  const [players, setPlayers] = useState<ExtendedUserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const supabase = createSupabaseBrowserClient();

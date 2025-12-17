@@ -5,6 +5,15 @@ import { createSupabaseBrowserClient } from '@/lib/supabase-client';
 import { UserProfile, Team, Announcement, Schedule } from '@/types';
 import Link from 'next/link';
 
+// Define a type for the user map
+interface UserMap {
+  [key: string]: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+  };
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -83,7 +92,7 @@ export default function AdminDashboard() {
       if (announcements) {
         // Get user IDs from announcements
         const userIds = announcements.map(ann => ann.user_id).filter(id => id);
-        let userMap = {};
+        let userMap: UserMap = {};
         
         if (userIds.length > 0) {
           // Fetch user profiles for these IDs
@@ -93,8 +102,12 @@ export default function AdminDashboard() {
             .in('id', userIds);
           
           if (users) {
-            userMap = users.reduce((map, user) => {
-              map[user.id] = user;
+            userMap = users.reduce((map: UserMap, user) => {
+              map[user.id] = {
+                id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name
+              };
               return map;
             }, {});
           }

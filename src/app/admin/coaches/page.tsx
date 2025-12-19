@@ -5,8 +5,17 @@ import { createSupabaseBrowserClient } from '@/lib/supabase-client';
 import { UserProfile } from '@/types';
 import Link from 'next/link';
 
+// Extend the UserProfile type locally to include phone_number
+interface ExtendedUserProfile extends UserProfile {
+  phone_number?: string;
+  experience_years?: number;
+  is_active?: boolean;
+  bio?: string;
+  last_login?: string;
+}
+
 export default function AdminCoachesPage() {
-  const [coaches, setCoaches] = useState<UserProfile[]>([]);
+  const [coaches, setCoaches] = useState<ExtendedUserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const supabase = createSupabaseBrowserClient();
@@ -120,7 +129,7 @@ export default function AdminCoachesPage() {
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Phone:</span>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {coach.phone_number || 'Not provided'}
+                          {(coach as ExtendedUserProfile).phone_number || 'Not provided'}
                         </p>
                       </div>
                       <div>
@@ -136,7 +145,7 @@ export default function AdminCoachesPage() {
                       <div>
                         <span className="text-gray-500 dark:text-gray-400">Experience:</span>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {coach.experience_years || 0} years
+                          {(coach as ExtendedUserProfile).experience_years || 0} years
                         </p>
                       </div>
                     </div>

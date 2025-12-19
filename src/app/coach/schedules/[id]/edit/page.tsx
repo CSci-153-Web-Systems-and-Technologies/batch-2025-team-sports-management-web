@@ -248,6 +248,14 @@ export default function EditSchedulePage() {
     }
   };
 
+  const handleCancel = (e: React.MouseEvent) => {
+    if (submitting) {
+      e.preventDefault();
+      return;
+    }
+    router.push(`/coach/schedules/${scheduleId}`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -322,6 +330,7 @@ export default function EditSchedulePage() {
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 placeholder="e.g., Practice Session, Team Meeting"
                 required
+                disabled={submitting}
               />
             </div>
 
@@ -335,6 +344,7 @@ export default function EditSchedulePage() {
                 value={formData.schedule_type}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                disabled={submitting}
               >
                 <option value="practice">Practice</option>
                 <option value="meeting">Meeting</option>
@@ -359,6 +369,7 @@ export default function EditSchedulePage() {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   required
+                  disabled={submitting}
                 />
               </div>
 
@@ -374,6 +385,7 @@ export default function EditSchedulePage() {
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                   required
+                  disabled={submitting}
                 />
               </div>
             </div>
@@ -388,6 +400,7 @@ export default function EditSchedulePage() {
                 value={formData.duration}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                disabled={submitting}
               >
                 <option value="30">30 minutes</option>
                 <option value="45">45 minutes</option>
@@ -411,6 +424,7 @@ export default function EditSchedulePage() {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 placeholder="e.g., Main Field, Gymnasium, Meeting Room"
+                disabled={submitting}
               />
             </div>
 
@@ -426,18 +440,20 @@ export default function EditSchedulePage() {
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 placeholder="Add any additional details, notes, or instructions for this event..."
+                disabled={submitting}
               />
             </div>
 
             {/* Form Actions */}
             <div className="flex justify-end space-x-4 pt-6 border-t dark:border-gray-700">
-              <Link
-                href={`/coach/schedules/${scheduleId}`}
-                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+              <button
+                type="button"
+                onClick={handleCancel}
                 disabled={submitting}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
-              </Link>
+              </button>
               <button
                 type="submit"
                 disabled={submitting}
